@@ -1,0 +1,17 @@
+body {
+  background-color: #333333;
+}
+
+#canvas path[data-coutry-id]:hover {
+  fill: rosybrown;
+}
+
+.flag {
+  width: 43px;
+  height: 43px;
+  position: relative;
+  z-index: 200;
+  overflow: auto;
+}
+
+/*# sourceMappingURL=style.css.map */
