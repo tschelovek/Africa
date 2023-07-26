@@ -1,17 +1,130 @@
-body {
-  background-color: #333333;
+*, *::before, *::after {
+  margin: 0;
+  box-sizing: border-box;
 }
 
+main {
+  overflow: hidden;
+}
+
+.container {
+  padding: 0 16px;
+  margin: 0 auto;
+  max-width: 1180px;
+  width: 100%;
+}
+
+.hero {
+  padding: 66px 0;
+  background-color: #3D332A;
+  color: white;
+  font-family: Open Sans, sans-serif;
+}
+.hero__wrapper {
+  display: flex;
+  gap: 16px;
+}
+.hero__text {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  gap: 50px;
+}
+.hero__text p {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 150%;
+}
+.hero .title_h1 {
+  font-family: Open Sans, sans-serif;
+  font-size: 50px;
+  font-weight: 600;
+  line-height: 120%;
+}
+.hero__map-wrapper {
+  flex-shrink: 0;
+}
+.hero__map-wrapper svg {
+  max-inline-size: 100%;
+}
+
+#canvas path[data-coutry-id] {
+  transition: fill 0.2s;
+}
 #canvas path[data-coutry-id]:hover {
+  fill: rosybrown;
+}
+#canvas path[data-coutry-id].highlighted {
   fill: rosybrown;
 }
 
 .flag {
-  width: 43px;
-  height: 43px;
-  position: relative;
+  position: fixed;
+  width: 42px;
+  height: 42px;
   z-index: 200;
-  overflow: auto;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  border: 3px solid #9F2D20;
+  opacity: 0;
+  translate: 0 -100%;
+  transition: opacity 0.3s, translate 0.3s ease-in-out;
+}
+.flag__img-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.flag::after {
+  content: "";
+  position: absolute;
+  bottom: -30px;
+  left: 17px;
+  width: 3px;
+  height: 30px;
+  background-color: #9F2D20;
+}
+.flag img {
+  width: 39px;
+  height: 39px;
+}
+.flag.show {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media only screen and (max-width: 1024px) {
+  .hero__map-wrapper {
+    margin-right: -60px;
+  }
+  .hero .title_h1 {
+    font-size: 36px;
+  }
+}
+@media only screen and (max-width: 860px) {
+  .hero__wrapper {
+    flex-flow: wrap;
+  }
+  .hero__map-wrapper {
+    margin: 0 auto;
+    flex-shrink: unset;
+  }
+}
+@media only screen and (max-width: 600px) {
+  .hero__map-wrapper {
+    margin: 0 -40px;
+  }
+  .hero__map-wrapper svg {
+    max-inline-size: unset;
+    max-width: 100%;
+  }
 }
 
 /*# sourceMappingURL=style.css.map */

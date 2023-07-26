@@ -1,50 +1,79 @@
-const canvas = document.getElementById('canvas');
-const state = {
-    flags: {
-        russia: {},
-    },
-};
+document.addEventListener('DOMContentLoaded', () => {
+//* Отступы для изменения вёрстки (размера, положения) флага относительно маркера, в px
+    const FLAG_OFFSET_X = 9;
+    const FLAG_OFFSET_Y = 58;
+//* Полная ширина изображения карты для расчёта смещения флага при масштабировании
+    const FULL_CANVAS_WIDTH = 583;
+//* Наша svg-карта
+    const canvas = document.getElementById('canvas');
+//* Маркеры
+    const markersArr = canvas.querySelectorAll('circle[data-marker-id]')
+//* Буфер для хранения уже сгенерированных флагов
+    const state = {
+        flags: {},
+    };
 
-function createFlagPole(src) {
-    const flagPole = document.createElement('div');
-    const img = document.createElement('img');
-    const wrapper = document.createElement('foreignObject');
+    /**
+     *
+     * @param src - строка с адресом картинки
+     * @param name - строка с названием страны
+     * @returns {HTMLDivElement} - возвращаем флаг-компонент
+     */
+    function createFlag(src = '', name = '') {
+        const flagPole = document.createElement('div');
+        const img = document.createElement('img');
+        const imgWrapper = document.createElement('div');
 
-    img.src = src;
-    flagPole.classList.add('flag');
-    wrapper.style.width = '43';
-    wrapper.style.height = '43';
+        img.src = src;
+        img.alt = name;
+        imgWrapper.classList.add('flag__img-wrapper');
+        flagPole.classList.add('flag');
 
-    flagPole.append(img);
-    wrapper.append(flagPole);
+        imgWrapper.append(img);
+        flagPole.append(imgWrapper);
 
-    return wrapper;
-}
-
-canvas.querySelector('circle[data-marker-id]').addEventListener('mouseover', (e) => markerHandler(e))
-
-let counter = 0;
-function markerHandler(event) {
-    const targetMarker = event.currentTarget;
-    const name = targetMarker.dataset.markerId;
-    const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
-
-    if(!state.flags[name]) {
-        state.flags[name] = createFlagPole(targetCountry.dataset.flagSrc)
+        return flagPole;
     }
 
-    // wrapper.dataset.count = String(counter++);
-    // wrapper.append(state.flags[name])
+    markersArr.forEach(marker => marker.addEventListener('mouseover', (e) => markerMouseoverHandler(e)));
+    markersArr.forEach(marker => marker.addEventListener('mouseout', (e) => markerMouseoutHandler(e)));
 
-    // document.body.append(wrapper)
-    targetMarker.append(state.flags[name])
-    console.log(state)
-}
+    function markerMouseoverHandler(event) {
+        const target = event.currentTarget;
+        const name = target.dataset.markerId;
+        const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
 
-const { top, left, width, height } = canvas.querySelector('circle[data-marker-id="zimbabwe"]').getBoundingClientRect();
-// const { top, left, width, height } = canvas.querySelector('circle[data-marker-id]').getBoundingClientRect();
+        if (!state.flags[name]) {
+            state.flags[name] = createFlag(targetCountry.dataset.flagSrc, name)
+        }
+        const flag = state.flags[name];
 
-console.log(top, left, width, height)
-console.log(canvas.querySelector('circle[data-marker-id="uar"]').getBoundingClientRect())
+        const {top, left, width, height} = target.getBoundingClientRect();
+        const {width: canvasWidth} = canvas.getBoundingClientRect();
+        let flagOffsetX;
+        canvasWidth < FULL_CANVAS_WIDTH
+            ? flagOffsetX = compensateShrunkenOffset(FLAG_OFFSET_X, canvasWidth)
+            : flagOffsetX = FLAG_OFFSET_X;
 
+        flag.style.left = `${(left - flagOffsetX - (width / 2)).toString()}px`;
+        flag.style.top = `${(top - FLAG_OFFSET_Y - height).toString()}px`;
 
+        targetCountry.classList.add('highlighted');
+        document.body.append(flag);
+        setTimeout(() => flag.classList.add('show'), 100);
+    }
+
+    function markerMouseoutHandler(event) {
+        const name = event.currentTarget.dataset.markerId;
+        const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
+        const flag = state.flags[name];
+
+        flag.classList.remove('show');
+        setTimeout(() => targetCountry.classList.remove('highlighted'), 100)
+        setTimeout(() => flag.remove(), 400);
+    }
+
+    function compensateShrunkenOffset(size, canvasWidth) {
+        return  FULL_CANVAS_WIDTH / canvasWidth * size
+    }
+})
