@@ -67,9 +67,6 @@ main {
   -moz-border-radius: 50%;
   border-radius: 50%;
   border: 3px solid #9F2D20;
-  opacity: 0;
-  translate: 0 -100%;
-  transition: opacity 0.3s, translate 0.3s ease-in-out;
 }
 .flag__img-wrapper {
   display: flex;
@@ -94,10 +91,6 @@ main {
 .flag img {
   width: 39px;
   height: 39px;
-}
-.flag.show {
-  opacity: 1;
-  translate: 0 0;
 }
 
 @media only screen and (max-width: 1024px) {

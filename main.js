@@ -8,8 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('canvas');
 //* Маркеры
     const markersArr = canvas.querySelectorAll('circle[data-marker-id]')
-//* Буфер для хранения уже сгенерированных флагов
+//* Ареолы вокруг маркеров
+    const markerBordersArr = canvas.querySelectorAll('circle[data-marker-border-id]')
+//* state.flags - буфер для хранения уже сгенерированных флагов
     const state = {
+        isOnMarker: false,
+        isOnMarkerBorder: false,
         flags: {},
     };
 
@@ -35,10 +39,34 @@ document.addEventListener('DOMContentLoaded', () => {
         return flagPole;
     }
 
-    markersArr.forEach(marker => marker.addEventListener('mouseover', (e) => markerMouseoverHandler(e)));
-    markersArr.forEach(marker => marker.addEventListener('mouseout', (e) => markerMouseoutHandler(e)));
+    markersArr.forEach(
+        marker => marker.addEventListener(
+            'mouseover',
+            e => markerMouseoverHandler(e)
+        )
+    );
+    markersArr.forEach(
+        marker => marker.addEventListener(
+            'mouseout',
+            e => markerMouseoutHandler(e)
+        )
+    );
+    markerBordersArr.forEach(
+        markerBorder => markerBorder.addEventListener(
+            'mouseover',
+            e => markerBorderMouseoverHandler(e)
+        )
+    );
+    markerBordersArr.forEach(
+        markerBorder => markerBorder.addEventListener(
+            'mouseout',
+            e => markerBorderMouseoutHandler(e)
+        )
+    );
 
     function markerMouseoverHandler(event) {
+        state.isOnMarker = true;
+
         const target = event.currentTarget;
         const name = target.dataset.markerId;
         const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
@@ -60,20 +88,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
         targetCountry.classList.add('highlighted');
         document.body.append(flag);
-        setTimeout(() => flag.classList.add('show'), 100);
     }
 
     function markerMouseoutHandler(event) {
+        state.isOnMarker = false;
+
         const name = event.currentTarget.dataset.markerId;
         const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
         const flag = state.flags[name];
 
         flag.classList.remove('show');
-        setTimeout(() => targetCountry.classList.remove('highlighted'), 100)
-        setTimeout(() => flag.remove(), 400);
+        setTimeout(() => {
+                if (!state.isOnMarkerBorder) {
+                    targetCountry.classList.remove('highlighted')
+                }
+            },
+            200
+        )
+        setTimeout(() => flag.remove(), 200);
+    }
+
+    function markerBorderMouseoverHandler(event) {
+        state.isOnMarkerBorder = true;
+
+        const name = event.currentTarget.dataset.markerBorderId;
+
+        if (event.relatedTarget === canvas.querySelector(`path[data-marker-id=${name}]`)) {
+            return
+        }
+
+        const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
+
+        targetCountry.classList.add('highlighted');
+    }
+
+    function markerBorderMouseoutHandler(event) {
+        state.isOnMarkerBorder = false;
+
+        const name = event.currentTarget.dataset.markerBorderId;
+        const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
+
+        setTimeout(() => {
+                if (!state.isOnMarker) {
+                    targetCountry.classList.remove('highlighted')
+                }
+            },
+            200
+        )
     }
 
     function compensateShrunkenOffset(size, canvasWidth) {
-        return  FULL_CANVAS_WIDTH / canvasWidth * size
+        return FULL_CANVAS_WIDTH / canvasWidth * size
     }
 })
