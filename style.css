@@ -48,13 +48,10 @@ main {
   max-inline-size: 100%;
 }
 
-#canvas path[data-coutry-id] {
+#canvas path[data-country-id] {
   transition: fill 0.2s;
 }
-#canvas path[data-coutry-id]:hover {
-  fill: rosybrown;
-}
-#canvas path[data-coutry-id].highlighted {
+#canvas path[data-country-id].highlighted {
   fill: rosybrown;
 }
 
@@ -67,6 +64,7 @@ main {
   -moz-border-radius: 50%;
   border-radius: 50%;
   border: 3px solid #9F2D20;
+  pointer-events: none;
 }
 .flag__img-wrapper {
   display: flex;

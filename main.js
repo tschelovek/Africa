@@ -10,34 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const markersArr = canvas.querySelectorAll('circle[data-marker-id]')
 //* Ареолы вокруг маркеров
     const markerBordersArr = canvas.querySelectorAll('circle[data-marker-border-id]')
+//* Ареолы вокруг маркеров
+    const countriesBordersArr = canvas.querySelectorAll('path[data-country-id]')
 //* state.flags - буфер для хранения уже сгенерированных флагов
     const state = {
-        isOnMarker: false,
-        isOnMarkerBorder: false,
         flags: {},
     };
-
-    /**
-     *
-     * @param src - строка с адресом картинки
-     * @param name - строка с названием страны
-     * @returns {HTMLDivElement} - возвращаем флаг-компонент
-     */
-    function createFlag(src = '', name = '') {
-        const flagPole = document.createElement('div');
-        const img = document.createElement('img');
-        const imgWrapper = document.createElement('div');
-
-        img.src = src;
-        img.alt = name;
-        imgWrapper.classList.add('flag__img-wrapper');
-        flagPole.classList.add('flag');
-
-        imgWrapper.append(img);
-        flagPole.append(imgWrapper);
-
-        return flagPole;
-    }
 
     markersArr.forEach(
         marker => marker.addEventListener(
@@ -63,20 +41,130 @@ document.addEventListener('DOMContentLoaded', () => {
             e => markerBorderMouseoutHandler(e)
         )
     );
+    countriesBordersArr.forEach(
+        markerBorder => markerBorder.addEventListener(
+            'mouseover',
+            e => countryMouseoverHandler(e)
+        )
+    );
+    countriesBordersArr.forEach(
+        markerBorder => markerBorder.addEventListener(
+            'mouseout',
+            e => countryMouseoutHandler(e)
+        )
+    );
 
     function markerMouseoverHandler(event) {
-        state.isOnMarker = true;
+        const name = event.currentTarget.dataset.markerId;
+        const targetCountry = canvas.querySelector(`path[data-country-id=${name}]`);
 
-        const target = event.currentTarget;
-        const name = target.dataset.markerId;
-        const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
-
-        if (!state.flags[name]) {
-            state.flags[name] = createFlag(targetCountry.dataset.flagSrc, name)
+        if (event.relatedTarget === targetCountry) {
+            return
         }
-        const flag = state.flags[name];
+        if (event.relatedTarget === canvas.querySelector(`circle[data-marker-border-id=${name}]`)) {
+            return
+        }
 
-        const {top, left, width, height} = target.getBoundingClientRect();
+        targetCountry.classList.add('highlighted');
+        showFlag({
+            id: name,
+            targetMarker: event.currentTarget,
+            targetCountry
+        })
+    }
+
+    function markerMouseoutHandler(event) {
+        const name = event.currentTarget.dataset.markerId;
+        const targetCountry = canvas.querySelector(`path[data-country-id=${name}]`);
+
+        if (event.relatedTarget === targetCountry) {
+            return
+        }
+        if (event.relatedTarget === canvas.querySelector(`circle[data-marker-border-id=${name}]`)) {
+            return
+        }
+
+        targetCountry.classList.remove('highlighted');
+        removeFlag(name);
+    }
+
+    function markerBorderMouseoverHandler(event) {
+        const name = event.currentTarget.dataset.markerBorderId;
+        const targetCountry = canvas.querySelector(`path[data-country-id=${name}]`);
+
+        if (event.relatedTarget === targetCountry) {
+            return
+        }
+        if (event.relatedTarget === canvas.querySelector(`circle[data-marker-id=${name}]`)) {
+            return
+        }
+
+        targetCountry.classList.add('highlighted');
+        showFlag({
+            id: name,
+            targetCountry
+        })
+    }
+
+    function markerBorderMouseoutHandler(event) {
+        const name = event.currentTarget.dataset.markerBorderId;
+        const targetCountry = canvas.querySelector(`path[data-country-id=${name}]`);
+
+        if (event.relatedTarget === targetCountry) {
+            return;
+        }
+        if (event.relatedTarget === canvas.querySelector(`circle[data-marker-id=${name}]`)) {
+            return
+        }
+
+        targetCountry.classList.remove('highlighted');
+        removeFlag(name);
+    }
+
+    function countryMouseoverHandler(event) {
+        const id = event.currentTarget.dataset.countryId;
+
+        if (event.relatedTarget === canvas.querySelector(`circle[data-marker-border-id=${id}]`)) {
+            return
+        }
+        if (event.relatedTarget === canvas.querySelector(`circle[data-marker-id=${id}]`)) {
+            return
+        }
+
+        event.currentTarget.classList.add('highlighted');
+        showFlag({
+            id: event.currentTarget.dataset.countryId,
+            targetCountry: event.currentTarget
+        });
+    }
+
+    function countryMouseoutHandler(event) {
+        const id = event.currentTarget.dataset.countryId;
+
+        if (event.relatedTarget === canvas.querySelector(`circle[data-marker-border-id=${id}]`)) {
+            return
+        }
+        if (event.relatedTarget === canvas.querySelector(`circle[data-marker-id=${id}]`)) {
+            return
+        }
+
+        event.currentTarget.classList.remove('highlighted');
+        removeFlag(id);
+    }
+
+    function showFlag({id, targetMarker, targetCountry}) {
+        !targetMarker
+            ? targetMarker = canvas.querySelector(`circle[data-marker-id=${id}]`)
+            : null;
+        !targetCountry
+            ? targetCountry = canvas.querySelector(`path[data-country-id=${id}]`)
+            : null;
+        !state.flags[id]
+            ? state.flags[id] = createFlag(targetCountry.dataset.flagSrc, id)
+            : null
+
+        const flag = state.flags[id];
+        const {top, left, width, height} = targetMarker.getBoundingClientRect();
         const {width: canvasWidth} = canvas.getBoundingClientRect();
         let flagOffsetX;
         canvasWidth < FULL_CANVAS_WIDTH
@@ -86,58 +174,36 @@ document.addEventListener('DOMContentLoaded', () => {
         flag.style.left = `${(left - flagOffsetX - (width / 2)).toString()}px`;
         flag.style.top = `${(top - FLAG_OFFSET_Y - height).toString()}px`;
 
-        targetCountry.classList.add('highlighted');
         document.body.append(flag);
-    }
-
-    function markerMouseoutHandler(event) {
-        state.isOnMarker = false;
-
-        const name = event.currentTarget.dataset.markerId;
-        const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
-        const flag = state.flags[name];
-
-        flag.classList.remove('show');
-        setTimeout(() => {
-                if (!state.isOnMarkerBorder) {
-                    targetCountry.classList.remove('highlighted')
-                }
-            },
-            200
-        )
-        setTimeout(() => flag.remove(), 200);
-    }
-
-    function markerBorderMouseoverHandler(event) {
-        state.isOnMarkerBorder = true;
-
-        const name = event.currentTarget.dataset.markerBorderId;
-
-        if (event.relatedTarget === canvas.querySelector(`path[data-marker-id=${name}]`)) {
-            return
-        }
-
-        const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
-
-        targetCountry.classList.add('highlighted');
-    }
-
-    function markerBorderMouseoutHandler(event) {
-        state.isOnMarkerBorder = false;
-
-        const name = event.currentTarget.dataset.markerBorderId;
-        const targetCountry = canvas.querySelector(`path[data-coutry-id=${name}]`);
-
-        setTimeout(() => {
-                if (!state.isOnMarker) {
-                    targetCountry.classList.remove('highlighted')
-                }
-            },
-            200
-        )
     }
 
     function compensateShrunkenOffset(size, canvasWidth) {
         return FULL_CANVAS_WIDTH / canvasWidth * size
+    }
+
+    function removeFlag(id) {
+        state.flags[id]?.remove();
+    }
+
+    /**
+     *
+     * @param src - строка с адресом картинки
+     * @param name - строка с названием страны
+     * @returns {HTMLDivElement} - возвращаем флаг-компонент
+     */
+    function createFlag(src = '', name = '') {
+        const flagPole = document.createElement('div');
+        const img = document.createElement('img');
+        const imgWrapper = document.createElement('div');
+
+        img.src = src;
+        img.alt = name;
+        imgWrapper.classList.add('flag__img-wrapper');
+        flagPole.classList.add('flag');
+
+        imgWrapper.append(img);
+        flagPole.append(imgWrapper);
+
+        return flagPole;
     }
 })

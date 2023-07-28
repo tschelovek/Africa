@@ -41,10 +41,10 @@ main
       max-inline-size: 100%
 
 #canvas
-  path[data-coutry-id]
+  path[data-country-id]
     transition: fill 0.2s
-    &:hover
-      fill: rosybrown
+    //&:hover
+    //  fill: rosybrown
     &.highlighted
       fill: rosybrown
 
@@ -57,6 +57,7 @@ main
   -moz-border-radius: 50%
   border-radius: 50%
   border: 3px solid $red
+  pointer-events: none
   &__img-wrapper
     display: flex
     align-items: center
