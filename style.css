@@ -65,6 +65,9 @@ main {
   border-radius: 50%;
   border: 3px solid #9F2D20;
   pointer-events: none;
+  transition: translate 0.3s, opacity 0.3s;
+  translate: 0 -100%;
+  opacity: 0;
 }
 .flag__img-wrapper {
   display: flex;
@@ -89,6 +92,10 @@ main {
 .flag img {
   width: 39px;
   height: 39px;
+}
+.flag.show {
+  translate: 0 0;
+  opacity: 1;
 }
 
 @media only screen and (max-width: 1024px) {

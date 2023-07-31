@@ -160,8 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ? targetCountry = canvas.querySelector(`path[data-country-id=${id}]`)
             : null;
         !state.flags[id]
-            ? state.flags[id] = createFlag(targetCountry.dataset.flagSrc, id)
-            : null
+            ? state.flags[id] = createFlag(id, targetCountry.dataset.flagSrc)
+            : null;
 
         const flag = state.flags[id];
         const {top, left, width, height} = targetMarker.getBoundingClientRect();
@@ -175,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         flag.style.top = `${(top - FLAG_OFFSET_Y - height).toString()}px`;
 
         document.body.append(flag);
+        setTimeout(() => flag.classList.add('show'), 100)
     }
 
     function compensateShrunkenOffset(size, canvasWidth) {
@@ -182,7 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function removeFlag(id) {
-        state.flags[id]?.remove();
+        state.flags[id]?.classList.remove('show')
+        setTimeout(() => state.flags[id]?.remove(), 300)
     }
 
     /**
@@ -191,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param name - строка с названием страны
      * @returns {HTMLDivElement} - возвращаем флаг-компонент
      */
-    function createFlag(src = '', name = '') {
+    function createFlag(name = '', src = '' ) {
         const flagPole = document.createElement('div');
         const img = document.createElement('img');
         const imgWrapper = document.createElement('div');
