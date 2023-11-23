@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function compensateShrunkenOffset(size, canvasWidth) {
-            return FULL_CANVAS_WIDTH / canvasWidth * size
+            return FULL_CANVAS_WIDTH / canvasWidth * size;
         }
 
         function removeFlag(id) {
