@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return
             }
 
-            targetCountry.classList.add('highlighted');
+            targetCountry?.classList.add('highlighted');
             showFlag({
                 id: name,
                 targetMarker: event.currentTarget,
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return
             }
 
-            targetCountry.classList.remove('highlighted');
+            targetCountry?.classList.remove('highlighted');
             removeFlag(name);
             window.removeEventListener('scroll', flagRemoverScrollHandler)
         }
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return
             }
 
-            targetCountry.classList.add('highlighted');
+            targetCountry?.classList.add('highlighted');
             showFlag({
                 id: name,
                 targetCountry
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return
             }
 
-            targetCountry.classList.remove('highlighted');
+            targetCountry?.classList.remove('highlighted');
             removeFlag(name);
             window.removeEventListener('scroll', flagRemoverScrollHandler)
         }
@@ -164,8 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
             !targetCountry
                 ? targetCountry = canvas.querySelector(`path[data-country-id=${id}]`)
                 : null;
+
+            const imgSrc = targetCountry?.dataset.flagSrc || targetMarker?.dataset.flagSrc
             !state.flags[id]
-                ? state.flags[id] = createFlag(id, targetCountry.dataset.flagSrc)
+                ? state.flags[id] = createFlag(id, imgSrc)
                 : null;
 
             const flag = state.flags[id];

@@ -16,8 +16,8 @@ main {
 
 .hero {
   padding: 66px 0;
-  background-color: #3D332A;
-  color: white;
+  background-color: wheat;
+  color: darkred;
   font-family: Open Sans, sans-serif;
 }
 .hero__wrapper {
